@@ -8,7 +8,7 @@ public class LRUEvictionStrategy<K> implements EvictionStrategy<K> {
     private final Node<K> head, tail;
 
     public LRUEvictionStrategy(){
-        this.nodeMap = new HashMap<>(null);
+        this.nodeMap = new HashMap<>();
         // Dummy nodes to simplify boundary logic
         this.head = new Node<>(null);
         this.tail = new Node<>(null);
@@ -48,7 +48,13 @@ public class LRUEvictionStrategy<K> implements EvictionStrategy<K> {
     @Override
     public K evict(){
         // Remove the node right before the tail dummy
-        return null;
+        // If only dummy node exists, return null
+        if(head.next == null) return null; 
+
+        Node<K> toRemove = tail.prev;
+        removeNode(toRemove);
+        nodeMap.remove(toRemove.key);
+        return toRemove.key;
     }
 
     @Override

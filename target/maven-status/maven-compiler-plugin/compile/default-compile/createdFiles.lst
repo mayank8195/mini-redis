@@ -1,3 +1,6 @@
 com/miniredis/storage/HashMapStorage.class
+com/miniredis/eviction/LRUEvictionStrategy.class
+com/miniredis/eviction/EvictionStrategy.class
 com/miniredis/Main.class
 com/miniredis/storage/Storage.class
+com/miniredis/eviction/Node.class

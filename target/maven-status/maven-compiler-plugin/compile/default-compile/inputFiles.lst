@@ -1,3 +1,6 @@
 /Users/mayankyadav/Documents/mini-redis/src/main/java/com/miniredis/Main.java
+/Users/mayankyadav/Documents/mini-redis/src/main/java/com/miniredis/eviction/EvictionStrategy.java
+/Users/mayankyadav/Documents/mini-redis/src/main/java/com/miniredis/eviction/LRUEvictionStrategy.java
+/Users/mayankyadav/Documents/mini-redis/src/main/java/com/miniredis/eviction/Node.java
 /Users/mayankyadav/Documents/mini-redis/src/main/java/com/miniredis/storage/HashMapStorage.java
 /Users/mayankyadav/Documents/mini-redis/src/main/java/com/miniredis/storage/Storage.java
