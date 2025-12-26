@@ -33,6 +33,16 @@ public class LRUEvictionStrategy<K> implements EvictionStrategy<K> {
     @Override
     public void keyAccessed(K key){
         // If exists, move to head. if new, add to head
+        if(nodeMap.containsKey(key)){
+            Node<K> node = nodeMap.get(key);
+            removeNode(node);
+            addNodeToHead(node);
+        }
+        else {
+            Node<K> newNode = new Node<>(key);
+            nodeMap.put(key, newNode);
+            addNodeToHead(newNode);
+        }
     }
 
     @Override
