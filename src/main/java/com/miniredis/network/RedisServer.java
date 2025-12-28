@@ -4,6 +4,8 @@ import com.miniredis.storage.Storage;
 import com.miniredis.storage.HashMapStorage;
 
 import java.io.*;
+import java.util.List;
+import java.util.ArrayList;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -37,43 +39,52 @@ public class RedisServer {
             BufferedReader in = new BufferedReader(new InputStreamReader(clienSocket.getInputStream()));
             PrintWriter out = new PrintWriter(clienSocket.getOutputStream(), true)
         ){
-            String inputLine;
-            while((inputLine = in.readLine()) != null) {
+            while(true) {
                 // 1. Basic parsing: Split the input by spaces
-                String[] parts = inputLine.trim().split("\\s");
-                if(parts.length == 0 || parts[0].isEmpty()) continue;
+                // String[] parts = inputLine.trim().split("\\s");
 
-                String command = parts[0].toUpperCase();
+                List<String> parts = RespParser.parseArray(in);
+                if(parts == null) break;
+                if(parts.isEmpty()) continue;
+
+                String command = parts.get(0).toUpperCase();
 
                 // 2. Routing commands to storage engine
                 switch (command) {
+                    case "COMMAND":
+                        out.print("+OK\r\n");
+                        break;
                     case "SET":
-                        if(parts.length < 3){
+                        if(parts.size() < 3){
                             out.println("-ERR wrong number of arguments for 'SET' command");
                         }
                         else{
-                            storage.put(parts[1], parts[2]);
-                            out.println("OK");
+                            storage.put(parts.get(1), parts.get(2));
+                            out.println("OK\r\n");
                         }
                         break;
 
                     case "GET":
-                        if(parts.length < 2){
+                        if(parts.size() < 2){
                             out.println("-ERR wrong number of arguments for 'GET' command");
                         }
                         else{
-                            String value = storage.get(parts[1]);
-                            out.println(value == null ? "$-1" : "+" + value);
+                            String value = storage.get(parts.get(1));
+                            if(value == null) out.print("$-1\r\n");
+                            else out.println("$" + value.length() + "\r\n" + value + "\r\n");
                         }
                         break;
                     
                     case "PING":
-                        out.println("+PONG");
+                        out.println("+PONG\r\n");
                         break;
                     
                     default:
+                        // System.out.println("LOG: Received unknown command: " + command);
                         out.println("-ERR unknown command '" + command + "'");
+                        break;
                 }
+                out.flush();
             }
         }
         catch (IOException e){
