@@ -23,10 +23,14 @@ public class RedisServer {
             System.out.println("Mini-Redis is running on port " + port);
 
             while(true){
+                // 1. Main thread blocking until someone connects 
                 Socket clienSocket = serverSocket.accept();
-                System.out.println("New client connected!");
+                System.out.println("New client connected: " + clienSocket.getInetAddress());
 
-                handleClient(clienSocket);
+                // 2. making a new thread: instead of calling handkeClient directly, we wrap it in a thread
+                new Thread(() -> {
+                    handleClient(clienSocket);
+                }).start();
             }
         }
         catch (IOException e){

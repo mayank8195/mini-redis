@@ -18,7 +18,7 @@ public class HashMapStorage<K, V> implements Storage<K, V>{
     }
 
     @Override
-    public void put(K key, V value){
+    public synchronized void put(K key, V value){
         //If at capacity, and new key incoming, need to evict
         if(internalMap.size() >= capacity && !internalMap.containsKey(key)){
             K evictedKey = evictionStrategy.evict();
@@ -33,7 +33,7 @@ public class HashMapStorage<K, V> implements Storage<K, V>{
     }
 
     @Override
-    public V get(K key){
+    public synchronized V get(K key){
         if(!internalMap.containsKey(key)) return null;
 
         //Notify LRUCache that this key is "fresh" again
@@ -42,18 +42,18 @@ public class HashMapStorage<K, V> implements Storage<K, V>{
     }
 
     @Override
-    public void remove(K key){
+    public synchronized void remove(K key){
         internalMap.remove(key);
         evictionStrategy.remove(key);
     }
 
     @Override
-    public boolean contains(K key){
+    public synchronized boolean contains(K key){
         return internalMap.containsKey(key);
     }
 
     @Override
-    public int size(){
+    public synchronized int size(){
         return internalMap.size();
     }
 }
