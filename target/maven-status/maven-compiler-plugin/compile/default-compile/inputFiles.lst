@@ -4,5 +4,6 @@
 /Users/mayankyadav/Documents/mini-redis/src/main/java/com/miniredis/eviction/Node.java
 /Users/mayankyadav/Documents/mini-redis/src/main/java/com/miniredis/network/RedisServer.java
 /Users/mayankyadav/Documents/mini-redis/src/main/java/com/miniredis/network/RespParser.java
+/Users/mayankyadav/Documents/mini-redis/src/main/java/com/miniredis/persistence/AofLogger.java
 /Users/mayankyadav/Documents/mini-redis/src/main/java/com/miniredis/storage/HashMapStorage.java
 /Users/mayankyadav/Documents/mini-redis/src/main/java/com/miniredis/storage/Storage.java

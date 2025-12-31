@@ -1,3 +1,4 @@
+com/miniredis/persistence/AofLogger.class
 com/miniredis/eviction/LRUEvictionStrategy.class
 com/miniredis/network/RespParser.class
 com/miniredis/Main.class
