@@ -7,7 +7,7 @@ package com.miniredis.storage;
 public interface Storage<K, V> {
     void put(K key, V value);
     V get(K key);
-    void remove(K key);
+    V remove(K key);
     boolean contains(K key);
     int size();
 }

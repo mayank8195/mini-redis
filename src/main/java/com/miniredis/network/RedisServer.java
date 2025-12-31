@@ -3,10 +3,12 @@ package com.miniredis.network;
 import com.miniredis.storage.Storage;
 import com.miniredis.storage.HashMapStorage;
 import com.miniredis.persistence.AofLogger;
+import com.miniredis.command.*;
 
 import java.io.*;
 import java.util.List;
-// import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -14,6 +16,18 @@ public class RedisServer {
     private final int port;
     private final Storage<String, String> storage;
     private AofLogger aofLogger = new AofLogger("appendonly.aof");
+    private static final Map<String, Command<String, String>> commands = new HashMap<>();
+
+    static {
+        commands.put("PING", new PingCommand());
+        commands.put("SET", new SetCommand());
+        commands.put("GET", new GetCommand());
+        commands.put("DEL", new DelCommand());
+        commands.put("EXISTS", new ExistsCommand());
+        commands.put("DECR", new DecrCommand());
+        // inline lambda for COMMAND handshake
+        commands.put("COMMAND", (args, store, log) -> "+OK\r\n");
+    }
 
     public RedisServer(int port){
         this.port = port;
@@ -34,6 +48,9 @@ public class RedisServer {
                 String command = parts[0].toUpperCase();
                 if(command.equals("SET") && parts.length >= 3){
                     storage.put(parts[1], parts[2]);
+                }
+                else if(command.equals("DEL") && parts.length >= 2){
+                    storage.remove(parts[1]);
                 }
                 // will add other write commands as implement
             }
@@ -80,42 +97,16 @@ public class RedisServer {
                 if(parts.isEmpty()) continue;
 
                 String command = parts.get(0).toUpperCase();
+                Command<String, String> cmd = commands.get(command);
 
                 // 2. Routing commands to storage engine
-                switch (command) {
-                    case "COMMAND":
-                        out.print("+OK\r\n");
-                        break;
-                    case "SET":
-                        if(parts.size() < 3){
-                            out.println("-ERR wrong number of arguments for 'SET' command");
-                        }
-                        else{
-                            storage.put(parts.get(1), parts.get(2));
-                            aofLogger.log(parts); // Logging the successful SET
-                            out.println("+OK\r\n");
-                        }
-                        break;
-
-                    case "GET":
-                        if(parts.size() < 2){
-                            out.println("-ERR wrong number of arguments for 'GET' command");
-                        }
-                        else{
-                            String value = storage.get(parts.get(1));
-                            if(value == null) out.print("$-1\r\n");
-                            else out.println("$" + value.length() + "\r\n" + value + "\r\n");
-                        }
-                        break;
-                    
-                    case "PING":
-                        out.println("+PONG\r\n");
-                        break;
-                    
-                    default:
-                        // System.out.println("LOG: Received unknown command: " + command);
-                        out.println("-ERR unknown command '" + command + "'");
-                        break;
+                if(cmd != null){
+                    // pass everything (args, storage, logger) to the command object
+                    String response = cmd.execute(parts, (HashMapStorage<String, String>) storage, aofLogger);
+                    out.print(response);
+                }
+                else{
+                    out.print("ERR unknown command '" + command + "'\r\n");
                 }
                 out.flush();
             }

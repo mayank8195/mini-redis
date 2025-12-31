@@ -42,9 +42,10 @@ public class HashMapStorage<K, V> implements Storage<K, V>{
     }
 
     @Override
-    public synchronized void remove(K key){
-        internalMap.remove(key);
-        evictionStrategy.remove(key);
+    public synchronized V remove(K key){
+        V value = internalMap.remove(key);
+        if(value != null) evictionStrategy.remove(key);
+        return value;
     }
 
     @Override
